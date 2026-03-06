@@ -1,20 +1,22 @@
 local squapi = require("scripts/libs/SquAPI")
 local tailPhysics = require("scripts/libs/tail")
-local physBone = require("scripts/libs/physBoneAPI")
 
 vanilla_model.PLAYER:setVisible(false)
 
-local Tail = {
-  models.models.model.root.torso.Body.Tail.Tail1,
-  models.models.model.root.torso.Body.Tail.Tail1.Tail2,
-  models.models.model.root.torso.Body.Tail.Tail1.Tail2.Tail3,
-  models.models.model.root.torso.Body.Tail.Tail1.Tail2.Tail3.Tail4,
-  models.models.model.root.torso.Body.Tail.Tail1.Tail2.Tail3.Tail4.Tail5,
-  models.models.model.root.torso.Body.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6,
-  models.models.model.root.torso.Body.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7,
-  models.models.model.root.torso.Body.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7.Tail8,
-  models.models.model.root.torso.Body.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7.Tail8.Tail9,
-  models.models.model.root.torso.Body.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7.Tail8.Tail9.Tail10
+
+local ears = models.models.ears
+local head = models.models.model.root.torso.Head
+local tail = {
+  models.models.tail.Tail.Tail1,
+  models.models.tail.Tail.Tail1.Tail2,
+  models.models.tail.Tail.Tail1.Tail2.Tail3,
+  models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4,
+  models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5,
+  models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6,
+  models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7,
+  models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7.Tail8,
+  models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7.Tail8.Tail9,
+  models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7.Tail8.Tail9.Tail10
 }
 
 squapi.eye:new(
@@ -28,7 +30,7 @@ squapi.eye:new(
 
 squapi.smoothHead:new(
     {
-        models.models.model.root.torso,
+      models.models.model.root.torso,
     	models.models.model.root.torso.Head --element(you can have multiple elements in a table)
     },
 	{
@@ -46,8 +48,8 @@ squapi.smoothHead:new(
 )
 
 squapi.ear:new(
-  models.models.model.root.torso.Head.Ears.EarLeft,
-  models.models.model.root.torso.Head.Ears.EarRight,
+  ears.Ears.EarLeft,
+  ears.Ears.EarRight,
   0.75, --(1) rangeMultiplier
   false, --(false) horizontalEars
   1, --(2) bendStrength
@@ -64,7 +66,7 @@ squapi.randimation:new(
   nil     --(false) stopOnSleep
 )
 
-local tailModel = tailPhysics.new(models.models.model.root.torso.Body.Tail.Tail1)
+local tailModel = tailPhysics.new(models.models.tail.Tail.Tail1)
 tailModel:setConfig {
   idleSpeed = vec(0.01, 0.1, 0.01),
   idleStrength = vec(2, 8, 0.1),
@@ -73,16 +75,11 @@ tailModel:setConfig {
   bounce = 0.1,
   stiff = 0.1,
 }
+
 --entity init event, used for when the avatar entity is loaded for the first time
 function events.entity_init()
-  local curlLeft = models.models.model.root.torso.Head.Curls.CurlLeft:newPhysBone("physBone")
-	curlLeft:setNodeEnd(5)
-	:setBounce(0.1)
-	:setSpringForce(5)
-	local curlRight = models.models.model.root.torso.Head.Curls.CurlRight:newPhysBone("physBone")
-	curlRight:setNodeEnd(5)
-	:setBounce(0.1)
-	:setSpringForce(5)
+  ears:moveTo(head)
+  models.models.tail:moveTo(models.models.model.root.torso.Body)
 end
 
 --tick event, called 20 times per second
