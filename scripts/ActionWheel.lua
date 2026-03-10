@@ -77,7 +77,7 @@ local function scrollingSkin(dir)
         currentSkinIdx = #skinsApi.skins
     end
 
-    if currentSkinIdx ~= 0 then
+    if currentSkinIdx ~= 0 and #skinsApi.skins > 0 then
         chooseSkin:setItem()
             :title(skinsApi.skins[currentSkinIdx].name)
             :setTexture(skinsApi.skins[currentSkinIdx].texture, 20, 20, 8, 12, 2)
