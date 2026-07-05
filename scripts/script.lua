@@ -1,6 +1,6 @@
 local squapi = require("scripts/libs/SquAPI")
-local tailPhysics = require("scripts/libs/tail")
 local AW = require("scripts/ActionWheel")
+local physBone = require("scripts.libs.physBoneAPI")
 
 vanilla_model.PLAYER:setVisible(false)
 vanilla_model.CAPE:setVisible(false)
@@ -13,17 +13,34 @@ end
 local ears = models.models.ears
 local head = models.models.model.root.torso.Head
 local tail = {
-    models.models.tail.Tail.Tail1,
-    models.models.tail.Tail.Tail1.Tail2,
-    models.models.tail.Tail.Tail1.Tail2.Tail3,
-    models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4,
-    models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5,
-    models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6,
-    models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7,
-    models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7.Tail8,
-    --models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7.Tail8.Tail9,
-    --models.models.tail.Tail.Tail1.Tail2.Tail3.Tail4.Tail5.Tail6.Tail7.Tail8.Tail9.Tail10
+    models.models.tail.PhysTail1,
+    models.models.tail.PhysTail1.PhysTail2,
+    models.models.tail.PhysTail1.PhysTail2.PhysTail3,
+    models.models.tail.PhysTail1.PhysTail2.PhysTail3.PhysTail4,
+    models.models.tail.PhysTail1.PhysTail2.PhysTail3.PhysTail4.PhysTail5,
+    models.models.tail.PhysTail1.PhysTail2.PhysTail3.PhysTail4.PhysTail5.PhysTail6,
+    models.models.tail.PhysTail1.PhysTail2.PhysTail3.PhysTail4.PhysTail5.PhysTail6.PhysTail7,
+    models.models.tail.PhysTail1.PhysTail2.PhysTail3.PhysTail4.PhysTail5.PhysTail6.PhysTail7.PhysTail8,
 }
+
+physBone:setPreset("PhysTail",
+  0.2,
+  2,
+  -9.81,
+  1.2,
+  1,
+  vec(0, 0,1),
+  20,
+  vec(0, 0, 0),
+  vec(90, 0, 0),
+  vec(1.5, 1, 1),
+  0,
+  0,
+  1,
+  0,
+  0.5,
+  1
+)
 
 squapi.eye:new(
     models.models.model.root.torso.Head.Eyes.Pupils.PupilLeft2,
@@ -80,84 +97,83 @@ squapi.randimation:new(
     true     --(false) stopOnSleep
 )
 
-local tailModel = tailPhysics.new(models.models.tail.Tail.Tail1)
-tailModel:setConfig {
-    idleSpeed = vec(0.01, 0.01, 0.1),
-    idleStrength = vec(2, 0.1, 8),
-    walkSpeed = vec(0, 0, 0.75),
-    walkStrength = vec(0.2, 0.05, 1),
-    bounce = 0.1,
-    stiff = 0.1,
-}
+-- local tailModel = tailPhysics.new(models.models.tail.PhysTail1)
+-- tailModel:setConfig {
+--     idleSpeed = vec(0.01, 0.01, 0.1),
+--     idleStrength = vec(2, 0.1, 8),
+--     walkSpeed = vec(0, 0, 0.75),
+--     walkStrength = vec(0.2, 0.05, 1),
+--     bounce = 0.1,
+--     stiff = 0.1,
+-- }
 
-local function loadConfig()
-    local skinConfig = config:load("skinSettings")
-    if skinConfig == nil then return end
+-- local function loadConfig()
+--     local skinConfig = config:load("skinSettings")
+--     if skinConfig == nil then return end
 
-    local skinTexture = textures:get("SkinTex")
-    if skinTexture == nil then textures:read("SkinTex", skinConfig.skin64) end
+--     local skinTexture = textures:get("SkinTex")
+--     if skinTexture == nil then textures:read("SkinTex", skinConfig.skin64) end
 
-    if skinConfig.eyeHeight == 2 then
-        models.models.model.root.torso.Head.Eyes.Pupils.PupilLeft1:setVisible(false)
-        models.models.model.root.torso.Head.Eyes.Pupils.PupilRight1:setVisible(false)
+--     if skinConfig.eyeHeight == 2 then
+--         models.models.model.root.torso.Head.Eyes.Pupils.PupilLeft1:setVisible(false)
+--         models.models.model.root.torso.Head.Eyes.Pupils.PupilRight1:setVisible(false)
 
-        models.models.model.root.torso.Head.Eyes.Pupils.PupilLeft2:setVisible(true)
-        models.models.model.root.torso.Head.Eyes.Pupils.PupilRight2:setVisible(true)
+--         models.models.model.root.torso.Head.Eyes.Pupils.PupilLeft2:setVisible(true)
+--         models.models.model.root.torso.Head.Eyes.Pupils.PupilRight2:setVisible(true)
         
-        models.models.model.root.torso.Head.Eyelids.EyebrowRight2:setVisible(true)
-        models.models.model.root.torso.Head.Eyelids.EyebrowLeft2:setVisible(true)
+--         models.models.model.root.torso.Head.Eyelids.EyebrowRight2:setVisible(true)
+--         models.models.model.root.torso.Head.Eyelids.EyebrowLeft2:setVisible(true)
         
-        models.models.model.root.torso.Head.Eyelids.EyebrowRight:setVisible(false)
-        models.models.model.root.torso.Head.Eyelids.EyebrowLeft:setVisible(false)
-    elseif skinConfig.eyeHeight == 1 then
-        models.models.model.root.torso.Head.Eyes.Pupils.PupilLeft1:setVisible(true)
-        models.models.model.root.torso.Head.Eyes.Pupils.PupilRight1:setVisible(true)
+--         models.models.model.root.torso.Head.Eyelids.EyebrowRight:setVisible(false)
+--         models.models.model.root.torso.Head.Eyelids.EyebrowLeft:setVisible(false)
+--     elseif skinConfig.eyeHeight == 1 then
+--         models.models.model.root.torso.Head.Eyes.Pupils.PupilLeft1:setVisible(true)
+--         models.models.model.root.torso.Head.Eyes.Pupils.PupilRight1:setVisible(true)
 
-        models.models.model.root.torso.Head.Eyes.Pupils.PupilLeft2:setVisible(false)
-        models.models.model.root.torso.Head.Eyes.Pupils.PupilRight2:setVisible(false)
+--         models.models.model.root.torso.Head.Eyes.Pupils.PupilLeft2:setVisible(false)
+--         models.models.model.root.torso.Head.Eyes.Pupils.PupilRight2:setVisible(false)
         
-        models.models.model.root.torso.Head.Eyelids.EyebrowRight2:setVisible(false)
-        models.models.model.root.torso.Head.Eyelids.EyebrowLeft2:setVisible(false)
+--         models.models.model.root.torso.Head.Eyelids.EyebrowRight2:setVisible(false)
+--         models.models.model.root.torso.Head.Eyelids.EyebrowLeft2:setVisible(false)
         
-        models.models.model.root.torso.Head.Eyelids.EyebrowRight:setVisible(true)
-        models.models.model.root.torso.Head.Eyelids.EyebrowLeft:setVisible(true)
-    end
-    models.models.model.root.torso.Head.Eyelids:setPos(0, -3 + skinConfig.eyesY + skinConfig.eyeHeight, 0)
-    models.models.model.root.torso.Head.Eyes.Pupils:setPos(0, -2 + skinConfig.eyesY, 0)
+--         models.models.model.root.torso.Head.Eyelids.EyebrowRight:setVisible(true)
+--         models.models.model.root.torso.Head.Eyelids.EyebrowLeft:setVisible(true)
+--     end
+--     models.models.model.root.torso.Head.Eyelids:setPos(0, -3 + skinConfig.eyesY + skinConfig.eyeHeight, 0)
+--     models.models.model.root.torso.Head.Eyes.Pupils:setPos(0, -2 + skinConfig.eyesY, 0)
 
-    local eyeWhiteTex = textures:get("EyeWhiteTex")
-    if eyeWhiteTex == nil then eyeWhiteTex = textures:newTexture("EyeWhiteTex", 16, 16) end
+--     local eyeWhiteTex = textures:get("EyeWhiteTex")
+--     if eyeWhiteTex == nil then eyeWhiteTex = textures:newTexture("EyeWhiteTex", 16, 16) end
 
-    local pixelRU = textures["SkinTex"]:getPixel(1, 1)
-    local pixelRD = textures["SkinTex"]:getPixel(1, 2)
-    local pixelLU = textures["SkinTex"]:getPixel(6, 1)
-    local pixelLD = textures["SkinTex"]:getPixel(6, 2)
+--     local pixelRU = textures["SkinTex"]:getPixel(1, 1)
+--     local pixelRD = textures["SkinTex"]:getPixel(1, 2)
+--     local pixelLU = textures["SkinTex"]:getPixel(6, 1)
+--     local pixelLD = textures["SkinTex"]:getPixel(6, 2)
 
-    eyeWhiteTex:fill(0, 0, 4, 8, pixelRU[3], pixelRU[2], pixelRU[1])
-    eyeWhiteTex:fill(4, 0, 4, 8, pixelLU[3], pixelLU[2], pixelLU[1])
-    if pixelRD[4] ~= 0 and pixelLD[4] ~= 0 then
-        eyeWhiteTex:fill(0, 8 - skinConfig.eyesY - 1, 4, skinConfig.eyesY + 1, pixelRD[3], pixelRD[2], pixelRD[1])
-        eyeWhiteTex:fill(4, 8 - skinConfig.eyesY - 1, 4, skinConfig.eyesY + 1, pixelLD[3], pixelLD[2], pixelLD[1])
-    end
+--     eyeWhiteTex:fill(0, 0, 4, 8, pixelRU[3], pixelRU[2], pixelRU[1])
+--     eyeWhiteTex:fill(4, 0, 4, 8, pixelLU[3], pixelLU[2], pixelLU[1])
+--     if pixelRD[4] ~= 0 and pixelLD[4] ~= 0 then
+--         eyeWhiteTex:fill(0, 8 - skinConfig.eyesY - 1, 4, skinConfig.eyesY + 1, pixelRD[3], pixelRD[2], pixelRD[1])
+--         eyeWhiteTex:fill(4, 8 - skinConfig.eyesY - 1, 4, skinConfig.eyesY + 1, pixelLD[3], pixelLD[2], pixelLD[1])
+--     end
 
-    eyeWhiteTex:update()
-    if models.models.model.root.torso.Head.Eyes.EyeWhite:getPrimaryTexture() == "PRIMARY" then
-        models.models.model.root.torso.Head.Eyes.EyeWhite:setPrimaryTexture("CUSTOM", textures["EyeWhiteTex"])
-    end
-    --textures["SkinTex"]:update()
-    if models.models.model:getPrimaryTexture() == "PRIMARY" then
-        models.models.model:setPrimaryTexture("CUSTOM", textures["SkinTex"])
-        models.models.tail:setPrimaryTexture("PRIMARY")
-        ears:setPrimaryTexture("PRIMARY")
-    end
+--     eyeWhiteTex:update()
+--     if models.models.model.root.torso.Head.Eyes.EyeWhite:getPrimaryTexture() == "PRIMARY" then
+--         models.models.model.root.torso.Head.Eyes.EyeWhite:setPrimaryTexture("CUSTOM", textures["EyeWhiteTex"])
+--     end
 
-    --AW.loadConfig(skinConfig.eyesY, skinConfig.eyeHeight)
-end
+--     if models.models.model:getPrimaryTexture() == "PRIMARY" then
+--         models.models.model:setPrimaryTexture("CUSTOM", textures["SkinTex"])
+--         models.models.tail:setPrimaryTexture("PRIMARY")
+--         ears:setPrimaryTexture("PRIMARY")
+--     end
 
+--     --AW.loadConfig(skinConfig.eyesY, skinConfig.eyeHeight)
+-- end
 
 function events.entity_init()
-
-    loadConfig()
+    local physTail = models.models.tail.PhysTail1:getPhysBone()
+    physTail:setRotMod(vec(50, 0, 0))
 
     if config:load("helmetSwitch") == nil then config:save("helmetSwitch", true) end
     if config:load("armorSwitch") == nil then config:save("armorSwitch", true) end
@@ -174,12 +190,13 @@ function events.entity_init()
     
     models.models.goggles:moveTo(head)
     head.goggles:setVisible(false)
-    --logTable(textures:getTextures())
+
+    -- models.models.model.root.torso.Body.tail:setPrimaryTexture("PRIMARY")
+    -- models.models.model.root.torso.Body.ears:setPrimaryTexture("PRIMARY")
 end
 
 
 function events.tick()
-  --code goes here
 end
 
 --render event, called every time your avatar is rendered

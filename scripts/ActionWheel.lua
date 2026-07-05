@@ -1,12 +1,42 @@
 local skinsApi = require("scripts/skinsScript")
+local SyncLib = require("scripts.libs.SyncLib")
 
 local AW = {}
 
+local sync = SyncLib:new({interval = 100})
+
+skinsApi.texSync:register("skinTex", nil, function(data)
+    textures:read("SkinTex", data)
+    log("Применен")
+    skinsApi.ApplySkin()
+    sync:markDirty()
+end)
+
 local currentSkinIdx = 0
-local eyesY = 2
-local eyeHeight = 1
-local helmetSwitch = config:load("helmetSwitch")
-local armorSwitch = config:load("armorSwitch")
+-- local eyesY = 2
+-- local eyeHeight = 1
+
+sync:register("helmet", true, SyncLib.BOOLEAN, function(visible)
+    vanilla_model.HELMET:setVisible(visible)
+end)
+sync:register("armor", true, SyncLib.BOOLEAN, function(visible)
+    vanilla_model.ARMOR:setVisible(visible)
+end)
+sync:register("plushe", false, SyncLib.BOOLEAN, function(visible)
+    if models.models.model.root.torso.Head.plushe ~= nil then
+        models.models.model.root.torso.Head.plushe:setPrimaryTexture("PRIMARY")
+        models.models.model.root.torso.Head.plushe:setVisible(visible)
+    end
+end)
+sync:register("goggles", false, SyncLib.BOOLEAN, function(visible)
+    if models.models.model.root.torso.Head.goggles ~= nil then
+        models.models.model.root.torso.Head.goggles:setPrimaryTexture("PRIMARY")
+        models.models.model.root.torso.Head.goggles:setVisible(visible)
+    end
+end)
+
+-- local helmetSwitch = config:load("helmetSwitch")
+-- local armorSwitch = config:load("armorSwitch")
 
 local mainPage = action_wheel:newPage()
 local skinPage = action_wheel:newPage()
@@ -35,7 +65,6 @@ local toggleArmor = mainPage:newAction()
     :setToggleTitle("Броня включена")
     :setColor(1, 0, 0)
     :setTitle("Броня выключена")
-    :setToggled(armorSwitch)
 
 local toggleHelmet = mainPage:newAction()
     :setItem("minecraft:iron_helmet")
@@ -43,7 +72,6 @@ local toggleHelmet = mainPage:newAction()
     :setToggleTitle("Шлем включен")
     :setColor(1, 0, 0)
     :setTitle("Шлем выключен")
-    :setToggled(helmetSwitch)
 
 local actionGotoBackSkins = skinPage:newAction()
     :onLeftClick(function() 
@@ -53,12 +81,23 @@ local actionGotoBackSkins = skinPage:newAction()
     :setTitle("Назад")
 
 local chooseEyeY = skinPage:newAction()
-    :setTitle("Координата глаз: "..eyesY)
+    :setTitle("Координата глаз: "..skinsApi.eyesY)
     :setItem("minecraft:ender_pearl")
 
 local chooseEyeHeight = skinPage:newAction()
-    :setTitle("Высота глаз: "..eyeHeight)
+    :setTitle("Высота глаз: "..skinsApi.eyeHeight)
     :setItem("minecraft:ender_eye")
+
+sync:register("eyesY", 2, SyncLib.INT8, function(y)
+    skinsApi.eyesY = y
+    chooseEyeY:setTitle("Координата глаз: "..skinsApi.eyesY)
+    skinsApi.ApplySkin()
+end)
+sync:register("eyeHeight", 1, SyncLib.INT8, function(h)
+    skinsApi.eyeHeight = h
+    chooseEyeHeight:setTitle("Высота глаз: "..skinsApi.eyeHeight)
+    skinsApi.ApplySkin()
+end)
     
 local chooseSkin = skinPage:newAction()
     :setTitle("Скины")
@@ -84,73 +123,76 @@ local function scrollingSkin(dir)
     end
 end
 
-function pings.clickApply()
+local function clickApply()
     if currentSkinIdx > 0 then
-        skinsApi.ApplySkin(currentSkinIdx, eyesY, eyeHeight)
+        local tmp = skinsApi.skins[currentSkinIdx].texture:save()
+        skinsApi.texSync:set("skinTex", tmp)
     end
 end
 
 chooseSkin:setOnScroll(scrollingSkin)
-    :setOnLeftClick(pings.clickApply)
+    :setOnLeftClick(function()
+        clickApply()
+        skinsApi.ApplySkin()
+    end)
 
 local function scrollingEyesY(dir)
     if dir > 0 then
-        eyesY = eyesY + 1
+        skinsApi.eyesY = skinsApi.eyesY + 1
     else
-        eyesY = eyesY - 1
+        skinsApi.eyesY = skinsApi.eyesY - 1
     end
 
-    if eyesY < 0 then
-        eyesY = 8 - (eyeHeight + 1)
-    elseif eyesY > 8 - (eyeHeight + 1) then
-        eyesY = 0
+    if skinsApi.eyesY < 0 then
+        skinsApi.eyesY = 8 - (skinsApi.eyeHeight + 1)
+    elseif skinsApi.eyesY > 8 - (skinsApi.eyeHeight + 1) then
+        skinsApi.eyesY = 0
     end
 
-    chooseEyeY:setTitle("Координата глаз: "..eyesY)
+    chooseEyeY:setTitle("Координата глаз: "..skinsApi.eyesY)
 end
 
 local function scrollingEyeHeight(dir)
     if dir > 0 then
-        eyeHeight = eyeHeight + 1
+        skinsApi.eyeHeight = skinsApi.eyeHeight + 1
     else
-        eyeHeight = eyeHeight - 1
+        skinsApi.eyeHeight = skinsApi.eyeHeight - 1
     end
 
-    if eyeHeight < 1 then
-        eyeHeight = 2
-    elseif eyeHeight > 2 then
-        eyeHeight = 1
+    if skinsApi.eyeHeight < 1 then
+        skinsApi.eyeHeight = 2
+    elseif skinsApi.eyeHeight > 2 then
+        skinsApi.eyeHeight = 1
     end
 
-    chooseEyeHeight:setTitle("Высота глаз: "..eyeHeight)
+    chooseEyeHeight:setTitle("Высота глаз: "..skinsApi.eyeHeight)
 end
 
 chooseEyeHeight:onScroll(scrollingEyeHeight)
-    :setOnLeftClick(pings.clickApply)
+    :setOnLeftClick(function()
+        sync:set("eyeHeight", skinsApi.eyeHeight)
+    end)
 chooseEyeY:onScroll(scrollingEyesY)
-    :setOnLeftClick(pings.clickApply)
+    :setOnLeftClick(function()
+        sync:set("eyesY", skinsApi.eyesY)
+    end)
 
-function pings.clickArmorSwitch(state)
-    vanilla_model.ARMOR:setVisible(state)
-    armorSwitch = state
-    config:save("armorSwitch", armorSwitch)
-    if not helmetSwitch then
-        vanilla_model.HELMET:setVisible(helmetSwitch)
+local function clickArmorSwitch(state)
+    sync:set("armor", state)
+    if not sync:get("helmet") then
+        sync:toggle("helmet")
     end
 end
 
-function pings.clickHelmetSwitch(state)
-    vanilla_model.HELMET:setVisible(state)
-    helmetSwitch = state
-    config:save("helmetSwitch", helmetSwitch)
+local function clickHelmetSwitch(state)
+    sync:set("helmet", state)
 end
 
-toggleArmor:setOnToggle(pings.clickArmorSwitch)
-toggleHelmet:setOnToggle(pings.clickHelmetSwitch)
+toggleArmor:setOnToggle(clickArmorSwitch)
+toggleHelmet:setOnToggle(clickHelmetSwitch)
 
-function pings.clickPlusheSwitch(state)
+function pings.clickPlusheSwitch()
     models.models.model.root.torso.Head.plushe:setPrimaryTexture("PRIMARY")
-    models.models.model.root.torso.Head.plushe:setVisible(state)
 end
 
 local function getPlusheTexture()
@@ -172,28 +214,40 @@ local function getPlusheTexture()
     return tex
 end
 
-togglePlushe:setOnToggle(pings.clickPlusheSwitch)
+togglePlushe:setOnToggle(function(visible)
+    pings.clickPlusheSwitch()
+    sync:set("plushe", visible)
+end)
     :setTexture(getPlusheTexture(), 8, 8, 8, 8, 2)
 
-function pings.clickGogglesSwitch(state)
+function pings.clickGogglesSwitch()
     models.models.model.root.torso.Head.goggles:setPrimaryTexture("PRIMARY")
-    models.models.model.root.torso.Head.goggles:setVisible(state)
 end
 
-toggleGoggles:setOnToggle(pings.clickGogglesSwitch)
+toggleGoggles:setOnToggle(function(visible)
+    pings.clickGogglesSwitch()
+    sync:set("goggles", visible)
+end)
 
-local function loadConfig()
-    local skinConfig = config:load("skinSettings")
-    if skinConfig == nil then return end
-    eyesY = skinConfig.eyesY
-    eyeHeight = skinConfig.eyeHeight
+-- local function loadConfig()
+--     local skinConfig = config:load("skinSettings")
+--     if skinConfig == nil then return end
+--     skinsApi.eyesY = skinConfig.eyesY
+--     skinsApi.eyeHeight = skinConfig.eyeHeight
 
-    chooseEyeY:setTitle("Координата глаз: "..eyesY)
-    chooseEyeHeight:setTitle("Высота глаз: "..eyeHeight)
-end
+--     chooseEyeY:setTitle("Координата глаз: "..skinsApi.eyesY)
+--     chooseEyeHeight:setTitle("Высота глаз: "..skinsApi.eyeHeight)
+-- end
 
 function events.entity_init()
-    loadConfig()
+    sync:init()
+end
+
+function events.tick()
+    sync:tick()
+
+    local a, b = skinsApi.texSync:progress("skinTex")
+    -- log(a, b)
 end
 
 return AW
