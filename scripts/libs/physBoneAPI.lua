@@ -5,7 +5,7 @@ local physBone = {
 	-- DO NOT ENABLE THIS UNLESS YOU KNOW WHAT YOU'RE DOING, THIS APPENDS THE INDEX OF THE PHYSBONE TO IT'S NAME IF THERE'S A DUPLICATE AND CAN CAUSE ISSUES
 	allowDuplicates = false,
 	-- Diabled debug mode 
-	disableDebugMode = false,
+	disableDebugMode = true,
 	children = {},
 	collider = {},
 	index = {},
